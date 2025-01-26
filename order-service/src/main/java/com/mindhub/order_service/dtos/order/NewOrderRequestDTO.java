@@ -9,10 +9,10 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record NewOrderRequestDTO(
-        @NotNull(message = "userId must be provided")
-        Long userId,
-        @NotNull(message = "status must be provided")
-        OrderStatus status,
+        @NotNull(message = "userEmail must be provided")
+        String userEmail,
+/*        @NotNull(message = "status must be provided")
+        OrderStatus status,*/
         @NotEmpty(message = "products must be provided")
         @Valid
         List<NewOrderItemDTO> products

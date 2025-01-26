@@ -15,19 +15,7 @@ public class CustomExceptionHandler {
 
     public record ErrorResponse(List<String> errors){}
 
-    /*@ExceptionHandler(ProductNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse productNotFoundExceptionHandler(ProductNotFoundException exception) {
-        return response(exception.getMessage());
-    }
-
-    @ExceptionHandler(InvalidProductException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse invalidProductExceptionHandler(InvalidProductException exception) {
-        return response(exception.getMessage());
-    }*/
-
-    @ExceptionHandler(InvalidProductException.class)
+    @ExceptionHandler({InvalidProductException.class, InsufficientProductStockException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse BadRequestExceptionHandler(Exception exception) {
         return response(exception.getMessage());

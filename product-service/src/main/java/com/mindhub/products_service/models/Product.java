@@ -78,7 +78,7 @@ public class Product {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
-                ", stock=" + stock +
+                ", quantity=" + stock +
                 '}';
     }
 }

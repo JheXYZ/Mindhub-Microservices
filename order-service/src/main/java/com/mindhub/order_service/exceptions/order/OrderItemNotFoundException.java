@@ -1,7 +1,4 @@
-package com.mindhub.order_service.exceptions;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+package com.mindhub.order_service.exceptions.order;
 
 /*@ResponseStatus(HttpStatus.NOT_FOUND)*/
 public class OrderItemNotFoundException extends Exception{

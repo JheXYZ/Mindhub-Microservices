@@ -1,6 +1,7 @@
 package com.mindhub.order_service.dtos.orderItem;
 
 
+import com.mindhub.order_service.dtos.product.ProductDTO;
 import com.mindhub.order_service.models.orderItem.OrderItem;
 
 public class OrderItemForOrderDTO{

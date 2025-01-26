@@ -11,8 +11,8 @@ public record NewProductDTO(
         @NotNull(message = "price must be provided")
         @PositiveOrZero(message = "price must be a positive value or zero")
         Double price,
-        @NotNull(message = "stock must be provided")
-        @PositiveOrZero(message = "stock must be a positive value or zero")
+        @NotNull(message = "quantity must be provided")
+        @PositiveOrZero(message = "quantity must be a positive value or zero")
         Integer stock
 ) {
 }

@@ -1,5 +1,6 @@
 package com.mindhub.order_service.models.orderItem;
 
+import com.mindhub.order_service.dtos.product.ProductDTO;
 import com.mindhub.order_service.models.order.Order;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

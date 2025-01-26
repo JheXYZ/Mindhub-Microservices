@@ -1,11 +1,14 @@
 package com.mindhub.order_service.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mindhub.order_service.dtos.orderItem.NewOrderItemRequestDTO;
 import com.mindhub.order_service.dtos.orderItem.OrderItemDTO;
 import com.mindhub.order_service.dtos.orderItem.PatchOrderItemRequestDTO;
-import com.mindhub.order_service.exceptions.InvalidOrderException;
-import com.mindhub.order_service.exceptions.OrderItemNotFoundException;
-import com.mindhub.order_service.exceptions.OrderNotFoundException;
+import com.mindhub.order_service.exceptions.clientRequest.UnexpectedResponseException;
+import com.mindhub.order_service.exceptions.order.InvalidOrderException;
+import com.mindhub.order_service.exceptions.order.OrderItemNotFoundException;
+import com.mindhub.order_service.exceptions.order.OrderNotFoundException;
+import com.mindhub.order_service.exceptions.product.ProductNotFoundException;
 import com.mindhub.order_service.service.orderItem.OrderItemService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,11 +38,12 @@ public class OrderItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public OrderItemDTO createNewOrderItem(@Valid @RequestBody NewOrderItemRequestDTO newOrderItem) throws OrderNotFoundException {
+    public OrderItemDTO createNewOrderItem(@Valid @RequestBody NewOrderItemRequestDTO newOrderItem) throws OrderNotFoundException, UnexpectedResponseException, ProductNotFoundException, JsonProcessingException {
         return orderItemService.createNewOrderItemRequest(newOrderItem);
     }
 
     @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public OrderItemDTO patchOrderItem(@PathVariable Long id, @Valid @RequestBody PatchOrderItemRequestDTO patchOrderItem) throws OrderItemNotFoundException, OrderNotFoundException, InvalidOrderException {
         return orderItemService.patchOrderItemRequest(id, patchOrderItem);
     }

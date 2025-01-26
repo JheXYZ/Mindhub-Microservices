@@ -26,4 +26,8 @@ public interface UserService {
     UserDTO patchUserRequest(Long id, PatchUserRequestDTO patchUser) throws UserNotFoundException, InvalidUserException;
 
     User patchUser(Long id, PatchUserRequestDTO patchUser) throws UserNotFoundException, InvalidUserException;
+
+    UserDTO getUserByEmailRequest(String email) throws UserNotFoundException;
+
+    User getUserByEmail(String email) throws UserNotFoundException;
 }

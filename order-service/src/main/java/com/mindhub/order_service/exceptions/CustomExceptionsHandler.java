@@ -1,5 +1,15 @@
 package com.mindhub.order_service.exceptions;
 
+import com.mindhub.order_service.exceptions.clientRequest.UnexpectedResponseException;
+import com.mindhub.order_service.exceptions.order.InvalidOrderException;
+import com.mindhub.order_service.exceptions.order.OrderAlreadyCompletedException;
+import com.mindhub.order_service.exceptions.order.OrderItemNotFoundException;
+import com.mindhub.order_service.exceptions.order.OrderNotFoundException;
+import com.mindhub.order_service.exceptions.product.InsufficientProductStockException;
+import com.mindhub.order_service.exceptions.product.ProductNotFoundException;
+import com.mindhub.order_service.exceptions.user.UserNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -12,36 +22,28 @@ import java.util.List;
 
 @RestControllerAdvice
 public class CustomExceptionsHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(CustomExceptionsHandler.class);
+
     public record ErrorResponse(List<String> errors){}
 
-    /*@ExceptionHandler(OrderNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse orderNotFoundExceptionHandler(OrderNotFoundException exception) {
-        return response(exception.getMessage());
-    }
-
-    @ExceptionHandler(OrderItemNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse orderItemNotFoundExceptionHandler(OrderItemNotFoundException exception) {
-        return response(exception.getMessage());
-    }*/
-
-    @ExceptionHandler({OrderNotFoundException.class, OrderItemNotFoundException.class})
+    @ExceptionHandler({OrderNotFoundException.class, OrderItemNotFoundException.class, UserNotFoundException.class, ProductNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse notFoundExceptionHandler(Exception exception){
         return response(exception.getMessage());
     }
 
-
-    /*@ExceptionHandler(InvalidOrderException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse invalidOrderExceptionHandler(InvalidOrderException exception) {
-        return response(exception.getMessage());
-    }*/
-
-    @ExceptionHandler(InvalidOrderException.class)
+    @ExceptionHandler({InvalidOrderException.class, InsufficientProductStockException.class, OrderAlreadyCompletedException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse badRequestExceptionHandler(Exception exception){
+        log.error(exception.getMessage());
+        return response(exception.getMessage());
+    }
+
+    @ExceptionHandler(UnexpectedResponseException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse internalServerErrorExceptionHandler(Exception exception){
+        log.error(exception.getMessage());
         return response(exception.getMessage());
     }
 

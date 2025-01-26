@@ -1,12 +1,14 @@
 package com.mindhub.order_service.dtos.order;
 
-import com.mindhub.order_service.dtos.orderItem.OrderItemForOrderDTO;
+import com.mindhub.order_service.dtos.orderItem.ConfirmOrderItemDTO;
+import com.mindhub.order_service.dtos.product.ProductDTO;
+import com.mindhub.order_service.dtos.product.ProductForConfirmOrderDTO;
 import com.mindhub.order_service.models.order.Order;
 import com.mindhub.order_service.models.order.OrderStatus;
 
 import java.util.List;
 
-public class OrderDTO {
+public class ConfirmOrderDTO {
 
     private Long id;
 
@@ -16,25 +18,25 @@ public class OrderDTO {
 
     private Double totalPrice;
 
-    private List<OrderItemForOrderDTO> products;
+    private List<ConfirmOrderItemDTO> products;
 
-    public OrderDTO() {
+    public ConfirmOrderDTO() {
     }
 
-    public OrderDTO(Long id, Long userId, Double totalPrice, OrderStatus status, List<OrderItemForOrderDTO> products) {
+    public ConfirmOrderDTO(Long id, Long userId, OrderStatus status, Double totalPrice, List<ConfirmOrderItemDTO> products) {
         this.id = id;
         this.userId = userId;
-        this.totalPrice = formatPrice(totalPrice);
         this.status = status;
+        this.totalPrice = totalPrice;
         this.products = products;
     }
 
-    public OrderDTO(Order order) {
+    public ConfirmOrderDTO(Order order, List<ConfirmOrderItemDTO> products) {
         this.id = order.getId();
-        this.userId = order.getUserId();
+        this.userId = order.getId();
         this.status = order.getStatus();
-        this.totalPrice = formatPrice(order.getTotalPrice());
-        this.products = order.getOrderItems().stream().map(OrderItemForOrderDTO::new).toList();
+        this.totalPrice = order.getTotalPrice();
+        this.products = products;
     }
 
     public Long getId() {
@@ -69,16 +71,11 @@ public class OrderDTO {
         this.totalPrice = totalPrice;
     }
 
-    public List<OrderItemForOrderDTO> getProducts() {
+    public List<ConfirmOrderItemDTO> getProducts() {
         return products;
     }
 
-    public void setProducts(List<OrderItemForOrderDTO> products) {
+    public void setProducts(List<ConfirmOrderItemDTO> products) {
         this.products = products;
     }
-
-    private Double formatPrice(Double price) {
-        return Math.round(price * 100) / 100D;
-    }
-
 }

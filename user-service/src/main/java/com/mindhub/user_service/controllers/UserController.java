@@ -32,6 +32,11 @@ public class UserController {
         return userService.getUserByIdRequest(id);
     }
 
+    @GetMapping(params = "email")
+    public UserDTO getUserByEmail(@RequestParam String email) throws UserNotFoundException {
+        return userService.getUserByEmailRequest(email);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserDTO createNewUser(@Valid @RequestBody NewUserRequestDTO userRequestDTO){

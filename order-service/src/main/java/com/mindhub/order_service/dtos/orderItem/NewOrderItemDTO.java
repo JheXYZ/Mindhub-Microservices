@@ -1,6 +1,7 @@
 package com.mindhub.order_service.dtos.orderItem;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 
 public record NewOrderItemDTO(
@@ -9,7 +10,7 @@ public record NewOrderItemDTO(
         Long productId,
 
         @NotNull(message = "quantity must be provided")
-        @PositiveOrZero(message = "quantity must be positive or zero")
+        @Positive(message = "quantity must be a positive number")
         Integer quantity
 ) {
 }

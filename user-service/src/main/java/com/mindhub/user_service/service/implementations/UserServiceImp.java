@@ -5,6 +5,7 @@ import com.mindhub.user_service.dtos.PatchUserRequestDTO;
 import com.mindhub.user_service.dtos.UserDTO;
 import com.mindhub.user_service.exceptions.InvalidUserException;
 import com.mindhub.user_service.exceptions.UserNotFoundException;
+import com.mindhub.user_service.models.RoleType;
 import com.mindhub.user_service.models.User;
 import com.mindhub.user_service.repositories.UserRepository;
 import com.mindhub.user_service.service.UserService;
@@ -31,6 +32,17 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
+    public UserDTO getUserByEmailRequest(String email) throws UserNotFoundException {
+        return new UserDTO(getUserByEmail(email));
+    }
+
+    @Override
+    public User getUserByEmail(String email) throws UserNotFoundException {
+        return userRepository.findByEmail(email)
+                .orElseThrow(UserNotFoundException::new);
+    }
+
+    @Override
     public List<UserDTO> getAllUsersRequest() {
         return getAllUsers().stream().map(UserDTO::new).toList();
     }
@@ -47,12 +59,11 @@ public class UserServiceImp implements UserService {
 
     @Override
     public User createNewUser(NewUserRequestDTO userRequestDTO) {
-        return userRepository.save(
-                new User(userRequestDTO.email(),
-                        userRequestDTO.password(),
-                        userRequestDTO.username(),
-                        userRequestDTO.role())
-        );
+        return userRepository.save(new User(
+                userRequestDTO.email(),
+                userRequestDTO.password(),
+                userRequestDTO.username(),
+                userRequestDTO.role() != null ? userRequestDTO.role() : RoleType.USER));
     }
 
     @Override

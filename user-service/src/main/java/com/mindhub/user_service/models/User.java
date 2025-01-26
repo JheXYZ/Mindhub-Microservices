@@ -4,13 +4,11 @@ import com.mindhub.user_service.validations.NoWhitespaces;
 import com.mindhub.user_service.validations.UniqueEmail;
 import com.mindhub.user_service.validations.ValidEmail;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.Length;
 
 
 @Entity
+@Table(name = "USERS")
 public class User {
 
     @Id
@@ -24,7 +22,6 @@ public class User {
 
     @NotNull
     @ValidEmail
-    @UniqueEmail
     @Column(unique = true, nullable = false)
     private String email;
 
@@ -39,6 +36,7 @@ public class User {
 
     public User(String email, String password, String username, RoleType role) {
         this.username = username;
+        this.password = password;
         this.email = email;
         this.role = role;
     }
