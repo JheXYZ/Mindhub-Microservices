@@ -1,15 +1,11 @@
 package com.mindhub.order_service.models.order;
 
-import com.mindhub.order_service.dtos.product.ProductDTO;
-import com.mindhub.order_service.exceptions.product.ProductNotFoundException;
 import com.mindhub.order_service.models.orderItem.OrderItem;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "ORDERS")
@@ -87,13 +83,13 @@ public class Order {
         return products.stream().map(OrderItem::getProductId).toList();
     }
 
-    public List<OrderItem> addOrderItem(OrderItem orderItem){
+    public List<OrderItem> addOrderItem(OrderItem orderItem) {
         orderItem.setOrder(this);
         this.products.add(orderItem);
         return this.products;
     }
 
-    public void clearProducts(){
+    public void clearProducts() {
         this.products.clear();
     }
 }

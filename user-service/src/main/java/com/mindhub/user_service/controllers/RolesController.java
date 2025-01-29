@@ -15,7 +15,7 @@ public class RolesController {
 
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
-    public List<RoleType> getAllRoles(){
+    public List<RoleType> getAllRoles() {
         return List.of(RoleType.values());
     }
 }

@@ -3,10 +3,7 @@ package com.mindhub.order_service.service.order;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mindhub.order_service.dtos.order.ConfirmOrderDTO;
-import com.mindhub.order_service.dtos.order.NewOrderRequestDTO;
-import com.mindhub.order_service.dtos.order.OrderDTO;
-import com.mindhub.order_service.dtos.order.PatchOrderRequestDTO;
+import com.mindhub.order_service.dtos.order.*;
 import com.mindhub.order_service.dtos.orderItem.ConfirmOrderItemDTO;
 import com.mindhub.order_service.dtos.orderItem.NewOrderItemDTO;
 import com.mindhub.order_service.dtos.product.DeductProductDTO;
@@ -41,16 +38,19 @@ import java.util.stream.Collectors;
 @Service
 public class OrderServiceImp implements OrderService {
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
     private RestTemplate restTemplate;
-
     @Autowired
     private OrderRepository orderRepository;
-
     @Autowired
     private OrderItemService orderItemService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    // Crear un mapa de productos para acceso rápido por ID
+    private static Map<Long, ProductDTO> mapToIdProduct(List<ProductDTO> products) {
+        return products.stream()
+                .collect(Collectors.toMap(ProductDTO::id, Function.identity()));
+    }
 
     @Override
     public OrderDTO getOrderByIdRequest(Long id) throws OrderNotFoundException {
@@ -94,7 +94,7 @@ public class OrderServiceImp implements OrderService {
         newOrderRequestDTO
                 .products()
                 .forEach(product ->
-                    requestProductsIdQuantity.put(product.productId(), product.quantity()));
+                        requestProductsIdQuantity.put(product.productId(), product.quantity()));
 
         // checks if all products have enough stock and adds up the prices with quantity
         double totalPrice = getTotalPriceWithValidation(products, requestProductsIdQuantity);
@@ -121,7 +121,20 @@ public class OrderServiceImp implements OrderService {
     }
 
     private UserDTO getUserByEmail(String email) throws UserNotFoundException, UnexpectedResponseException {
-        final String URL = EndPoints.USER_BASE_URL + "?email=" + email;
+        final String URL = EndPoints.USER_GET_BY_EMAIL(email);
+
+        try {
+            return restTemplate.getForObject(URL, UserDTO.class);
+        } catch (HttpClientErrorException exception) {
+            if (exception.getStatusCode().equals(HttpStatus.NOT_FOUND))
+                throw new UserNotFoundException();
+            else
+                throw new UnexpectedResponseException("an error occurred while obtaining user: (" + exception.getStatusCode().value() + ") " + exception.getMessage());
+        }
+    }
+
+    private UserDTO getUserById(Long id) throws UserNotFoundException, UnexpectedResponseException {
+        final String URL = EndPoints.USER_GET_BY_ID(id);
 
         try {
             return restTemplate.getForObject(URL, UserDTO.class);
@@ -147,12 +160,12 @@ public class OrderServiceImp implements OrderService {
     }
 
     @Override
-    public ConfirmOrderDTO confirmOrderRequest(Long id) throws OrderNotFoundException, UnexpectedValueException, UnexpectedResponseException, ProductNotFoundException, JsonProcessingException, InsufficientProductStockException, OrderAlreadyCompletedException {
-        return confirmOrder(id);
+    public ConfirmOrderDTO confirmOrderRequest(Long id, OrderForEmailDTO orderForEmailDTO) throws OrderNotFoundException, UnexpectedValueException, UnexpectedResponseException, ProductNotFoundException, JsonProcessingException, InsufficientProductStockException, OrderAlreadyCompletedException, UserNotFoundException {
+        return confirmOrder(id, orderForEmailDTO);
     }
 
     @Override
-    public ConfirmOrderDTO confirmOrder(Long id) throws OrderNotFoundException, UnexpectedValueException, UnexpectedResponseException, ProductNotFoundException, JsonProcessingException, InsufficientProductStockException, OrderAlreadyCompletedException {
+    public ConfirmOrderDTO confirmOrder(Long id, OrderForEmailDTO orderForEmailDTO) throws OrderNotFoundException, UnexpectedValueException, UnexpectedResponseException, ProductNotFoundException, JsonProcessingException, OrderAlreadyCompletedException, UserNotFoundException {
         Order order = getOrderById(id);
         if (order.getStatus().equals(OrderStatus.COMPLETED))
             throw new OrderAlreadyCompletedException();
@@ -171,7 +184,26 @@ public class OrderServiceImp implements OrderService {
         order.setStatus(OrderStatus.COMPLETED);
         Order savedOrder = orderRepository.save(order);
 
+        setOrderForEmail(orderForEmailDTO, order, products);
+
         return convertToDTO(savedOrder, products);
+    }
+
+    private void setOrderForEmail(OrderForEmailDTO orderForEmailDTO, Order order, List<ProductDTO> products) throws UserNotFoundException, UnexpectedResponseException {
+        orderForEmailDTO.setId(order.getId());
+        orderForEmailDTO.setTotalPrice(order.getTotalPrice());
+        orderForEmailDTO.setUser(getUserById(order.getId()));
+        orderForEmailDTO.setStatus(order.getStatus().toString());
+
+        Map<Long, ProductDTO> productMap = mapToIdProduct(products);
+        List<ConfirmOrderItemDTO> orderItems = new ArrayList<>();
+        for (var orderItem : order.getOrderItems())
+            orderItems.add(new ConfirmOrderItemDTO(
+                    orderItem.getId(),
+                    orderItem.getQuantity(),
+                    new ProductForConfirmOrderDTO(productMap.get(orderItem.getProductId())))
+            );
+        orderForEmailDTO.setProducts(orderItems);
     }
 
     private double getTotalPrice(List<ProductDTO> products, List<DeductProductDTO> prodIdQuantityList) {
@@ -185,7 +217,7 @@ public class OrderServiceImp implements OrderService {
         return totalPrice;
     }
 
-    private double toPrecision(double number, int precision){
+    private double toPrecision(double number, int precision) {
         if (precision < 1) return number;
         return Math.round(number * Math.pow(10, precision)) / Math.pow(10, precision);
     }
@@ -195,9 +227,9 @@ public class OrderServiceImp implements OrderService {
         double totalPrice = 0D;
         for (var prod : products)
             if (requestProductsIdQuantity.get(prod.id()) <= prod.stock())
-                totalPrice += requestProductsIdQuantity.get(prod.id()) * prod.price();
+                totalPrice += requestProductsIdQuantity.get(prod.id()) * toPrecision(prod.price(), 2);
             else
-                throw new InsufficientProductStockException("product with id " + prod.id() + " does not have enough stock. (available: " + prod.stock() + ", requested: " + requestProductsIdQuantity.get(prod.id()) + ", difference: " + ( requestProductsIdQuantity.get(prod.id()) - prod.stock() ) + ')');
+                throw new InsufficientProductStockException("product with id " + prod.id() + " does not have enough stock. (available: " + prod.stock() + ", requested: " + requestProductsIdQuantity.get(prod.id()) + ", difference: " + (requestProductsIdQuantity.get(prod.id()) - prod.stock()) + ')');
         return totalPrice;
     }
 
@@ -212,12 +244,13 @@ public class OrderServiceImp implements OrderService {
     }
 
     private List<ProductDTO> getProductsListByIds(Set<Long> ids) throws UnexpectedValueException, ProductNotFoundException, UnexpectedResponseException, JsonProcessingException {
-        String idsFormated = ids.stream().map(Object::toString).reduce((acc, id) -> acc  + ',' + id).orElse("");
-        final String URL = EndPoints.PRODUCT_GET + "?ids=" + idsFormated;
+        String idsFormated = ids.stream().map(Object::toString).collect(Collectors.joining(","));
+        final String URL = EndPoints.PRODUCT_GET_ALL_BY_IDS(idsFormated);
 
         try {
             String response = restTemplate.getForObject(URL, String.class);
-            return objectMapper.readValue(response, new TypeReference<List<ProductDTO>>() {});
+            return objectMapper.readValue(response, new TypeReference<List<ProductDTO>>() {
+            });
         } catch (JsonProcessingException exception) {
             throw new UnexpectedValueException(exception.getMessage());
         } catch (HttpClientErrorException exception) {
@@ -243,9 +276,7 @@ public class OrderServiceImp implements OrderService {
     }
 
     private ConfirmOrderDTO convertToDTO(Order order, List<ProductDTO> products) {
-        // Crear un mapa de productos para acceso rápido por ID
-        Map<Long, ProductDTO> productMap = products.stream()
-                .collect(Collectors.toMap(ProductDTO::id, Function.identity()));
+        Map<Long, ProductDTO> productMap = mapToIdProduct(products);
 
         // Convertir los OrderItem a ConfirmOrderItemDTO
         List<ConfirmOrderItemDTO> itemDTOs = order.getOrderItems().stream()

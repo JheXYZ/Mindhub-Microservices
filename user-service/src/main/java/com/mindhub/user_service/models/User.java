@@ -1,7 +1,6 @@
 package com.mindhub.user_service.models;
 
 import com.mindhub.user_service.validations.NoWhitespaces;
-import com.mindhub.user_service.validations.UniqueEmail;
 import com.mindhub.user_service.validations.ValidEmail;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

@@ -1,10 +1,7 @@
 package com.mindhub.order_service.service.order;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mindhub.order_service.dtos.order.ConfirmOrderDTO;
-import com.mindhub.order_service.dtos.order.NewOrderRequestDTO;
-import com.mindhub.order_service.dtos.order.OrderDTO;
-import com.mindhub.order_service.dtos.order.PatchOrderRequestDTO;
+import com.mindhub.order_service.dtos.order.*;
 import com.mindhub.order_service.exceptions.clientRequest.UnexpectedResponseException;
 import com.mindhub.order_service.exceptions.clientRequest.UnexpectedValueException;
 import com.mindhub.order_service.exceptions.order.InvalidOrderException;
@@ -34,7 +31,7 @@ public interface OrderService {
 
     Order patchOrder(Long id, PatchOrderRequestDTO patchOrderRequestDTO) throws OrderNotFoundException, InvalidOrderException;
 
-    ConfirmOrderDTO confirmOrderRequest(Long id) throws OrderNotFoundException, UnexpectedValueException, UnexpectedResponseException, ProductNotFoundException, JsonProcessingException, InsufficientProductStockException, OrderAlreadyCompletedException;
+    ConfirmOrderDTO confirmOrderRequest(Long id, OrderForEmailDTO orderForEmailDTO) throws OrderNotFoundException, UnexpectedValueException, UnexpectedResponseException, ProductNotFoundException, JsonProcessingException, InsufficientProductStockException, OrderAlreadyCompletedException, UserNotFoundException;
 
-    ConfirmOrderDTO confirmOrder(Long id) throws OrderNotFoundException, UnexpectedValueException, UnexpectedResponseException, ProductNotFoundException, JsonProcessingException, InsufficientProductStockException, OrderAlreadyCompletedException;
+    ConfirmOrderDTO confirmOrder(Long id, OrderForEmailDTO orderForEmailDTO) throws OrderNotFoundException, UnexpectedValueException, UnexpectedResponseException, ProductNotFoundException, JsonProcessingException, InsufficientProductStockException, OrderAlreadyCompletedException, UserNotFoundException;
 }

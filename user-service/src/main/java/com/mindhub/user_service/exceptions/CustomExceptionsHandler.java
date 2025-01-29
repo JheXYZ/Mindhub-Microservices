@@ -12,17 +12,15 @@ import java.util.List;
 
 @RestControllerAdvice
 public class CustomExceptionsHandler {
-    public record ErrorResponse(List<String> errors){}
-
     @ExceptionHandler(InvalidUserException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse badRequestExceptionHandler(Exception exception){
+    public ErrorResponse badRequestExceptionHandler(Exception exception) {
         return response(exception.getMessage());
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse notFoundExceptionHandler(Exception exception){
+    public ErrorResponse notFoundExceptionHandler(Exception exception) {
         return response(exception.getMessage());
     }
 
@@ -59,5 +57,8 @@ public class CustomExceptionsHandler {
 
     private ErrorResponse response(List<String> errorResponseList) {
         return new ErrorResponse(errorResponseList);
+    }
+
+    public record ErrorResponse(List<String> errors) {
     }
 }

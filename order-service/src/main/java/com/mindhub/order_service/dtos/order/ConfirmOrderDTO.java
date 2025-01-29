@@ -1,8 +1,6 @@
 package com.mindhub.order_service.dtos.order;
 
 import com.mindhub.order_service.dtos.orderItem.ConfirmOrderItemDTO;
-import com.mindhub.order_service.dtos.product.ProductDTO;
-import com.mindhub.order_service.dtos.product.ProductForConfirmOrderDTO;
 import com.mindhub.order_service.models.order.Order;
 import com.mindhub.order_service.models.order.OrderStatus;
 

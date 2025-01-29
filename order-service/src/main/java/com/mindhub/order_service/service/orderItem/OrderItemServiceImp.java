@@ -1,13 +1,10 @@
 package com.mindhub.order_service.service.orderItem;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mindhub.order_service.dtos.orderItem.NewOrderItemDTO;
 import com.mindhub.order_service.dtos.orderItem.NewOrderItemRequestDTO;
 import com.mindhub.order_service.dtos.orderItem.OrderItemDTO;
 import com.mindhub.order_service.dtos.orderItem.PatchOrderItemRequestDTO;
-import com.mindhub.order_service.dtos.product.ProductDTO;
-import com.mindhub.order_service.exceptions.CustomExceptionsHandler.ErrorResponse;
 import com.mindhub.order_service.exceptions.clientRequest.UnexpectedResponseException;
 import com.mindhub.order_service.exceptions.order.InvalidOrderException;
 import com.mindhub.order_service.exceptions.order.OrderItemNotFoundException;
@@ -17,13 +14,9 @@ import com.mindhub.order_service.models.order.Order;
 import com.mindhub.order_service.models.orderItem.OrderItem;
 import com.mindhub.order_service.repositories.OrderItemRepository;
 import com.mindhub.order_service.repositories.OrderRepository;
-import com.mindhub.order_service.utils.EndPoints;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 

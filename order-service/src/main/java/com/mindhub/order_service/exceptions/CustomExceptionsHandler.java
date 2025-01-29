@@ -25,24 +25,22 @@ public class CustomExceptionsHandler {
 
     private static final Logger log = LoggerFactory.getLogger(CustomExceptionsHandler.class);
 
-    public record ErrorResponse(List<String> errors){}
-
     @ExceptionHandler({OrderNotFoundException.class, OrderItemNotFoundException.class, UserNotFoundException.class, ProductNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse notFoundExceptionHandler(Exception exception){
+    public ErrorResponse notFoundExceptionHandler(Exception exception) {
         return response(exception.getMessage());
     }
 
     @ExceptionHandler({InvalidOrderException.class, InsufficientProductStockException.class, OrderAlreadyCompletedException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse badRequestExceptionHandler(Exception exception){
+    public ErrorResponse badRequestExceptionHandler(Exception exception) {
         log.error(exception.getMessage());
         return response(exception.getMessage());
     }
 
     @ExceptionHandler(UnexpectedResponseException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse internalServerErrorExceptionHandler(Exception exception){
+    public ErrorResponse internalServerErrorExceptionHandler(Exception exception) {
         log.error(exception.getMessage());
         return response(exception.getMessage());
     }
@@ -56,7 +54,7 @@ public class CustomExceptionsHandler {
                         .getFieldErrors().stream()
                         .map(DefaultMessageSourceResolvable::getDefaultMessage)
                         .toList()
-                );
+        );
     }
 
     // json parse exceptions and invalid enum
@@ -80,5 +78,8 @@ public class CustomExceptionsHandler {
 
     private ErrorResponse response(List<String> errorResponseList) {
         return new ErrorResponse(errorResponseList);
+    }
+
+    public record ErrorResponse(List<String> errors) {
     }
 }

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Resumen de Orden de Compra</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .user-info {
+            margin-bottom: 20px;
+        }
+        .user-info p {
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .total {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+<h1>Resumen de Orden de Compra</h1>
+
+<!-- Información del usuario -->
+<div class="user-info">
+    <p><strong>Usuario:</strong> <span th:text="${order.user.username}"></span></p>
+    <p><strong>Correo:</strong> <span th:text="${order.user.email}"></span></p>
+    <p><strong>Id de Order:</strong> <span th:text="${order.id}"></span></p>
+</div>
+
+<!-- Detalle de los ítems -->
+<table>
+    <thead>
+    <tr>
+        <th>Cantidad</th>
+        <th>Producto</th>
+        <th>Precio Unitario</th>
+        <th>Subtotal</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${order.products}">
+        <td th:text="${item.quantity}"></td>
+        <td th:text="${item.product.name}"></td>
+        <td th:text="${'$' + #numbers.formatDecimal(item.product.price, 1, 2)}"></td>
+        <td th:text="${'$' + #numbers.formatDecimal(item.quantity * item.product.price, 1, 2)}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Total de la orden -->
+<div class="total">
+    <p><strong>Total:</strong> <span th:text="${'$' + #numbers.formatDecimal(order.totalPrice, 1, 2)}"></span></p>
+</div>
+</body>
+</html>

@@ -1,10 +1,9 @@
 package com.mindhub.order_service.dtos.orderItem;
 
 
-import com.mindhub.order_service.dtos.product.ProductDTO;
 import com.mindhub.order_service.models.orderItem.OrderItem;
 
-public class OrderItemForOrderDTO{
+public class OrderItemForOrderDTO {
 
     private Long id;
 
@@ -45,5 +44,14 @@ public class OrderItemForOrderDTO{
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderItemForOrderDTO{" +
+                "id=" + id +
+                ", productId=" + productId +
+                ", quantity=" + quantity +
+                '}';
     }
 }

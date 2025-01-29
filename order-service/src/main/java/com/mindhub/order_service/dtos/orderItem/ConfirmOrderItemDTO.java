@@ -1,5 +1,6 @@
 package com.mindhub.order_service.dtos.orderItem;
 
+import com.mindhub.order_service.dtos.product.ProductDTO;
 import com.mindhub.order_service.dtos.product.ProductForConfirmOrderDTO;
 
 public class ConfirmOrderItemDTO {
@@ -18,6 +19,13 @@ public class ConfirmOrderItemDTO {
         this.quantity = quantity;
         this.product = product;
     }
+
+    public ConfirmOrderItemDTO(ProductDTO productDTO, Integer quantity) {
+        this.id = productDTO.id();
+        this.quantity = quantity;
+        this.product = new ProductForConfirmOrderDTO(productDTO);
+    }
+
 
     public Long getId() {
         return id;

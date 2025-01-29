@@ -81,4 +81,14 @@ public class OrderDTO {
         return Math.round(price * 100) / 100D;
     }
 
+    @Override
+    public String toString() {
+        return "OrderDTO{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", status=" + status +
+                ", totalPrice=" + totalPrice +
+                ", products=" + products +
+                '}';
+    }
 }

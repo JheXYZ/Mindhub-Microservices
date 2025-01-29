@@ -1,6 +1,6 @@
 package com.mindhub.order_service.exceptions.clientRequest;
 
-public class UnexpectedValueException extends Exception{
+public class UnexpectedValueException extends Exception {
 
     public UnexpectedValueException() {
         super("unexpected value");

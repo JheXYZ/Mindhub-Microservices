@@ -1,7 +1,6 @@
 package com.mindhub.order_service.dtos.order;
 
 import com.mindhub.order_service.dtos.orderItem.NewOrderItemDTO;
-import com.mindhub.order_service.models.order.OrderStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

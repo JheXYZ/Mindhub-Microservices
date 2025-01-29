@@ -13,7 +13,6 @@ import com.mindhub.products_service.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -44,10 +43,10 @@ public class ProductServiceImp implements ProductService {
     public Product createNewProduct(NewProductDTO newProductDTO) {
         return productRepository.save(
                 new Product(
-                    newProductDTO.name(),
-                    newProductDTO.description(),
-                    newProductDTO.price(),
-                    newProductDTO.stock())
+                        newProductDTO.name(),
+                        newProductDTO.description(),
+                        newProductDTO.price(),
+                        newProductDTO.stock())
         );
     }
 

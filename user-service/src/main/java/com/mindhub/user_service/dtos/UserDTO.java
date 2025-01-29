@@ -3,8 +3,6 @@ package com.mindhub.user_service.dtos;
 import com.mindhub.user_service.models.RoleType;
 import com.mindhub.user_service.models.User;
 
-import java.util.Set;
-
 public class UserDTO {
 
     private Long id;

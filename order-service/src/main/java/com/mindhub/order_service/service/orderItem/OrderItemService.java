@@ -1,7 +1,10 @@
 package com.mindhub.order_service.service.orderItem;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mindhub.order_service.dtos.orderItem.*;
+import com.mindhub.order_service.dtos.orderItem.NewOrderItemDTO;
+import com.mindhub.order_service.dtos.orderItem.NewOrderItemRequestDTO;
+import com.mindhub.order_service.dtos.orderItem.OrderItemDTO;
+import com.mindhub.order_service.dtos.orderItem.PatchOrderItemRequestDTO;
 import com.mindhub.order_service.exceptions.clientRequest.UnexpectedResponseException;
 import com.mindhub.order_service.exceptions.order.InvalidOrderException;
 import com.mindhub.order_service.exceptions.order.OrderItemNotFoundException;

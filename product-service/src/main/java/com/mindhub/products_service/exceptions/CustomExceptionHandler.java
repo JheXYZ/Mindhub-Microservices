@@ -13,8 +13,6 @@ import java.util.List;
 @RestControllerAdvice
 public class CustomExceptionHandler {
 
-    public record ErrorResponse(List<String> errors){}
-
     @ExceptionHandler({InvalidProductException.class, InsufficientProductStockException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse BadRequestExceptionHandler(Exception exception) {
@@ -57,6 +55,9 @@ public class CustomExceptionHandler {
 
     private ErrorResponse response(List<String> errorResponseList) {
         return new ErrorResponse(errorResponseList);
+    }
+
+    public record ErrorResponse(List<String> errors) {
     }
 
 }
