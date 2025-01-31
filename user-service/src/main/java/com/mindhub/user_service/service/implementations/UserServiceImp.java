@@ -6,10 +6,11 @@ import com.mindhub.user_service.dtos.UserDTO;
 import com.mindhub.user_service.exceptions.InvalidUserException;
 import com.mindhub.user_service.exceptions.UserNotFoundException;
 import com.mindhub.user_service.models.RoleType;
-import com.mindhub.user_service.models.User;
+import com.mindhub.user_service.models.UserEntity;
 import com.mindhub.user_service.repositories.UserRepository;
 import com.mindhub.user_service.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,13 +21,16 @@ public class UserServiceImp implements UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public UserDTO getUserByIdRequest(Long id) throws UserNotFoundException {
         return new UserDTO(getUserById(id));
     }
 
     @Override
-    public User getUserById(Long id) throws UserNotFoundException {
+    public UserEntity getUserById(Long id) throws UserNotFoundException {
         return userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
     }
@@ -37,9 +41,21 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public User getUserByEmail(String email) throws UserNotFoundException {
+    public UserEntity getUserByEmail(String email) throws UserNotFoundException {
         return userRepository.findByEmail(email)
                 .orElseThrow(UserNotFoundException::new);
+    }
+
+    @Override
+    public void deleteUserByIdRequest(Long id) throws UserNotFoundException {
+        deleteUserById(id);
+    }
+
+    @Override
+    public void deleteUserById(Long id) throws UserNotFoundException {
+        if (!userRepository.existsById(id))
+            throw new UserNotFoundException();
+        userRepository.deleteById(id);
     }
 
     @Override
@@ -48,7 +64,7 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<UserEntity> getAllUsers() {
         return userRepository.findAll();
     }
 
@@ -58,13 +74,15 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public User createNewUser(NewUserRequestDTO userRequestDTO) {
-        return userRepository.save(new User(
+    public UserEntity createNewUser(NewUserRequestDTO userRequestDTO) {
+        return userRepository.save(new UserEntity(
                 userRequestDTO.email(),
-                userRequestDTO.password(),
+                passwordEncoder.encode(userRequestDTO.password()),
                 userRequestDTO.username(),
                 userRequestDTO.role() != null ? userRequestDTO.role() : RoleType.USER));
     }
+
+
 
     @Override
     public UserDTO patchUserRequest(Long id, PatchUserRequestDTO patchUser) throws UserNotFoundException, InvalidUserException {
@@ -72,15 +90,15 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public User patchUser(Long id, PatchUserRequestDTO patchUser) throws UserNotFoundException, InvalidUserException {
-        User user = userRepository.findById(id)
+    public UserEntity patchUser(Long id, PatchUserRequestDTO patchUser) throws UserNotFoundException, InvalidUserException {
+        UserEntity user = userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
 
         makePatchUpdated(user, patchUser);
         return user;
     }
 
-    private void makePatchUpdated(User user, PatchUserRequestDTO patchUser) throws InvalidUserException {
+    private void makePatchUpdated(UserEntity user, PatchUserRequestDTO patchUser) throws InvalidUserException {
         if (patchUser == null || patchUser.email() == null && patchUser.role() == null && patchUser.username() == null && patchUser.password() == null)
             throw new InvalidUserException();
 

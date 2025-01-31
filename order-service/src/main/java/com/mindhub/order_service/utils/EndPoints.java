@@ -14,13 +14,9 @@ public class EndPoints {
         return String.join("", USER_BASE_URL, "/", id.toString());
     }
 
-    ;
-
     public static String PRODUCT_GET_ALL_BY_IDS(String ids) {
         return String.join("", PRODUCT_BASE_URL, "?ids=", ids);
     }
-
-    ;
 
     public static String PRODUCT_GET_BY_ID(Long id) {
         return String.join("", PRODUCT_BASE_URL, "/", id.toString());

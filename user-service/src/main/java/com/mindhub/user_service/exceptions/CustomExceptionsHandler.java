@@ -1,5 +1,6 @@
 package com.mindhub.user_service.exceptions;
 
+import org.springframework.amqp.AmqpConnectException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -19,7 +20,7 @@ public class CustomExceptionsHandler {
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse notFoundExceptionHandler(Exception exception) {
         return response(exception.getMessage());
     }
@@ -34,6 +35,12 @@ public class CustomExceptionsHandler {
                         .map(DefaultMessageSourceResolvable::getDefaultMessage)
                         .toList()
         );
+    }
+
+    @ExceptionHandler(AmqpConnectException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ErrorResponse rabbitMQUnavailableExceptionHandler(AmqpConnectException exception) {
+        return response("petition could not be process, try again later");
     }
 
     // json parse exceptions and invalid enum

@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "USERS")
-public class User {
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,10 +30,10 @@ public class User {
 
     private RoleType role = RoleType.USER;
 
-    public User() {
+    public UserEntity() {
     }
 
-    public User(String email, String password, String username, RoleType role) {
+    public UserEntity(String email, String password, String username, RoleType role) {
         this.username = username;
         this.password = password;
         this.email = email;

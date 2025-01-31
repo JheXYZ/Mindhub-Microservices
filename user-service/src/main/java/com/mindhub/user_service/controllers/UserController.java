@@ -29,7 +29,7 @@ public class UserController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<UserDTO> getAllUsers() {
+    public List<UserDTO> getAllUsers(){
         return userService.getAllUsersRequest();
     }
 
@@ -58,5 +58,10 @@ public class UserController {
         return userService.patchUserRequest(id, patchUser);
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable Long id) throws UserNotFoundException {
+        userService.deleteUserById(id);
+    }
 
 }

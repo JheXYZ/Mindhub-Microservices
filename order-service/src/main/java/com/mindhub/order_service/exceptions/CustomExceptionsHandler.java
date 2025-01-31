@@ -1,6 +1,7 @@
 package com.mindhub.order_service.exceptions;
 
 import com.mindhub.order_service.exceptions.clientRequest.UnexpectedResponseException;
+import com.mindhub.order_service.exceptions.clientRequest.UnexpectedValueException;
 import com.mindhub.order_service.exceptions.order.InvalidOrderException;
 import com.mindhub.order_service.exceptions.order.OrderAlreadyCompletedException;
 import com.mindhub.order_service.exceptions.order.OrderItemNotFoundException;
@@ -31,7 +32,7 @@ public class CustomExceptionsHandler {
         return response(exception.getMessage());
     }
 
-    @ExceptionHandler({InvalidOrderException.class, InsufficientProductStockException.class, OrderAlreadyCompletedException.class})
+    @ExceptionHandler({InvalidOrderException.class, InsufficientProductStockException.class, OrderAlreadyCompletedException.class, UnexpectedValueException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse badRequestExceptionHandler(Exception exception) {
         log.error(exception.getMessage());

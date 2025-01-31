@@ -25,6 +25,7 @@ import com.mindhub.order_service.models.orderItem.OrderItem;
 import com.mindhub.order_service.repositories.OrderRepository;
 import com.mindhub.order_service.service.orderItem.OrderItemService;
 import com.mindhub.order_service.utils.EndPoints;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -78,6 +79,7 @@ public class OrderServiceImp implements OrderService {
     }
 
     @Override
+    @Transactional
     public Order createNewOrder(NewOrderRequestDTO newOrderRequestDTO) throws UserNotFoundException, UnexpectedResponseException, ProductNotFoundException, InsufficientProductStockException, UnexpectedValueException, JsonProcessingException, InvalidOrderException {
         checkForRepeatedProducts(newOrderRequestDTO.products());
 
@@ -165,7 +167,7 @@ public class OrderServiceImp implements OrderService {
     }
 
     @Override
-    public ConfirmOrderDTO confirmOrder(Long id, OrderForEmailDTO orderForEmailDTO) throws OrderNotFoundException, UnexpectedValueException, UnexpectedResponseException, ProductNotFoundException, JsonProcessingException, OrderAlreadyCompletedException, UserNotFoundException {
+    public ConfirmOrderDTO confirmOrder(Long id, OrderForEmailDTO orderForEmailDTO) throws OrderNotFoundException, UnexpectedValueException, UnexpectedResponseException, ProductNotFoundException, JsonProcessingException, OrderAlreadyCompletedException, UserNotFoundException, InsufficientProductStockException {
         Order order = getOrderById(id);
         if (order.getStatus().equals(OrderStatus.COMPLETED))
             throw new OrderAlreadyCompletedException();
@@ -189,10 +191,55 @@ public class OrderServiceImp implements OrderService {
         return convertToDTO(savedOrder, products);
     }
 
+    @Override
+    public List<OrderDTO> getAllOrdersByUserIdRequest(Long userId) {
+        return getAllOrdersByUserId(userId).stream().map(OrderDTO::new).toList();
+    }
+
+    @Override
+    public List<Order> getAllOrdersByUserId(Long userId) {
+        return orderRepository.findByUserId(userId)
+                .orElse(List.of());
+    }
+
+    @Override
+    public OrderDTO getOrderByIdFromUserRequest(Long id, Long userId) throws OrderNotFoundException {
+        return new OrderDTO(getOrderByIdFromUser(id, userId));
+    }
+
+    @Override
+    public Order getOrderByIdFromUser(Long id, Long userId) throws OrderNotFoundException {
+        return orderRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(OrderNotFoundException::new);
+    }
+
+    @Override
+    public OrderDTO createNewOrderFromUserRequest(Long userId, NewOrderRequestFromUser newOrderRequestFromUser) throws UserNotFoundException, UnexpectedResponseException, UnexpectedValueException, InvalidOrderException, InsufficientProductStockException, ProductNotFoundException, JsonProcessingException {
+        return new OrderDTO(createNewOrderFromUser(userId, newOrderRequestFromUser));
+    }
+
+    @Override
+    public Order createNewOrderFromUser(Long userId, NewOrderRequestFromUser newOrderRequestFromUser) throws UserNotFoundException, UnexpectedResponseException, UnexpectedValueException, InvalidOrderException, InsufficientProductStockException, ProductNotFoundException, JsonProcessingException {
+        UserDTO user = getUserById(userId);
+        return createNewOrder(new NewOrderRequestDTO(user.email(), newOrderRequestFromUser.products()));
+    }
+
+    @Override
+    public ConfirmOrderDTO confirmOrderRequestFromUserRequest(Long id, Long userId, OrderForEmailDTO orderForEmailDTO) throws OrderNotFoundException, UnexpectedValueException, UserNotFoundException, OrderAlreadyCompletedException, UnexpectedResponseException, ProductNotFoundException, JsonProcessingException, InsufficientProductStockException {
+        return confirmOrderRequestFromUser(id, userId, orderForEmailDTO);
+    }
+
+    @Override
+    public ConfirmOrderDTO confirmOrderRequestFromUser(Long id, Long userId, OrderForEmailDTO orderForEmailDTO) throws OrderNotFoundException, UnexpectedValueException, UserNotFoundException, OrderAlreadyCompletedException, UnexpectedResponseException, ProductNotFoundException, JsonProcessingException, InsufficientProductStockException {
+        if (!orderRepository.existsByIdAndUserId(id, userId))
+            throw new OrderNotFoundException();
+        return confirmOrder(id, orderForEmailDTO);
+    }
+
     private void setOrderForEmail(OrderForEmailDTO orderForEmailDTO, Order order, List<ProductDTO> products) throws UserNotFoundException, UnexpectedResponseException {
         orderForEmailDTO.setId(order.getId());
         orderForEmailDTO.setTotalPrice(order.getTotalPrice());
-        orderForEmailDTO.setUser(getUserById(order.getId()));
+        orderForEmailDTO.setUser(getUserById(order.getUserId()));
         orderForEmailDTO.setStatus(order.getStatus().toString());
 
         Map<Long, ProductDTO> productMap = mapToIdProduct(products);
@@ -262,7 +309,7 @@ public class OrderServiceImp implements OrderService {
         }
     }
 
-    private void deductStock(List<DeductProductDTO> deductProductDTO) throws ProductNotFoundException, JsonProcessingException, UnexpectedResponseException {
+    private void deductStock(List<DeductProductDTO> deductProductDTO) throws ProductNotFoundException, JsonProcessingException, UnexpectedResponseException, InsufficientProductStockException {
         final String URL = EndPoints.PRODUCT_PATCH_STOCK;
         try {
             String response = restTemplate.patchForObject(URL, deductProductDTO, String.class);
@@ -270,6 +317,9 @@ public class OrderServiceImp implements OrderService {
             if (exception.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
                 ErrorResponse errorResponse = objectMapper.readValue(exception.getResponseBodyAsString(), ErrorResponse.class);
                 throw new ProductNotFoundException(errorResponse.errors().get(0));
+            } else if (exception.getStatusCode().equals(HttpStatus.BAD_REQUEST) && exception.getMessage().contains("does not have enough stock")) {
+                ErrorResponse errorResponse = objectMapper.readValue(exception.getResponseBodyAsString(), ErrorResponse.class);
+                throw new InsufficientProductStockException(errorResponse.errors().get(0));
             } else
                 throw new UnexpectedResponseException("an error occurred while deducting stock from products: " + exception.getLocalizedMessage());
         }

@@ -1,7 +1,7 @@
 package com.mindhub.user_service.dtos;
 
 import com.mindhub.user_service.models.RoleType;
-import com.mindhub.user_service.models.User;
+import com.mindhub.user_service.models.UserEntity;
 
 public class UserDTO {
 
@@ -23,7 +23,7 @@ public class UserDTO {
         this.role = role;
     }
 
-    public UserDTO(User user) {
+    public UserDTO(UserEntity user) {
         this.id = user.getId();
         this.username = user.getUsername();
         this.email = user.getEmail();
